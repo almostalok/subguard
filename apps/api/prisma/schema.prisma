@@ -1,0 +1,412 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Cadence {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUALLY
+  ANNUALLY
+  CUSTOM
+}
+
+enum CommitmentCategory {
+  ENTERTAINMENT
+  PRODUCTIVITY
+  UTILITIES
+  HEALTH_FITNESS
+  FINANCE_EMI
+  CLOUD_HOSTING
+  MEMBERSHIP
+  INSURANCE
+  OTHER
+}
+
+enum CommitmentType {
+  SUBSCRIPTION
+  MANDATE
+  EMI
+  INSURANCE_PREMIUM
+  FREE_TRIAL
+  UTILITY_BILL
+  MEMBERSHIP
+  OTHER
+}
+
+enum CommitmentStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  ARCHIVED
+}
+
+enum CommitmentSource {
+  MANUAL_ENTRY
+  DETECTED_IMPORT
+  MANDATE_REGISTER
+}
+
+enum VerificationState {
+  USER_VERIFIED
+  UNVERIFIED_ESTIMATE
+}
+
+enum MandateKind {
+  UPI_AUTOPAY
+  CARD_E_MANDATE
+  BANK_STANDING_INSTRUCTION
+  NACH_DEBIT
+  OTHER
+}
+
+enum MandateFrequency {
+  AS_PRESENTED
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+  MAX_DAILY
+}
+
+enum MandateStatus {
+  ACTIVE
+  PAUSED
+  REVOKED
+  EXPIRED
+}
+
+enum MandateVerificationState {
+  MANUAL_UNVERIFIED
+  IMPORT_MATCHED
+}
+
+enum ImportType {
+  CSV
+  OFX
+  PDF
+}
+
+enum ImportStatus {
+  PENDING
+  PREVIEWED
+  COMMITTED
+  ROLLED_BACK
+  FAILED
+}
+
+enum TransactionDirection {
+  DEBIT
+  CREDIT
+}
+
+enum DetectionReviewStatus {
+  PENDING
+  CONFIRMED
+  DISMISSED
+  ALREADY_TRACKED
+}
+
+enum ReminderType {
+  DAYS_BEFORE_DUE
+  ON_DUE_DATE
+  TRIAL_EXPIRATION
+  UNUSUAL_AMOUNT
+}
+
+enum NotificationStatus {
+  PENDING
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+}
+
+enum AccountType {
+  SAVINGS
+  CURRENT
+  CREDIT_CARD
+  WALLET
+  OTHER
+}
+
+model User {
+  id                  String               @id @default(uuid()) @db.Uuid
+  email               String               @unique @db.VarChar(255)
+  passwordHash        String               @db.Text
+  name                String?              @db.VarChar(128)
+  currency            String               @default("INR") @db.VarChar(3)
+  timezone            String               @default("Asia/Kolkata") @db.VarChar(64)
+  onboardingCompleted Boolean              @default(false)
+  createdAt           DateTime             @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime             @updatedAt @db.Timestamptz(6)
+
+  sessions            Session[]
+  paymentAccounts     PaymentAccount[]
+  commitments         Commitment[]
+  mandates            Mandate[]
+  transactionImports  TransactionImport[]
+  transactions        Transaction[]
+  detectionCandidates DetectionCandidate[]
+  reminders           Reminder[]
+  notifications       Notification[]
+  auditEvents         AuditEvent[]
+
+  @@map("users")
+}
+
+model Session {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @db.Uuid
+  sessionTokenHash String    @unique @db.VarChar(64)
+  ipAddress        String?   @db.VarChar(45)
+  userAgent        String?   @db.Text
+  expiresAt        DateTime  @db.Timestamptz(6)
+  revokedAt        DateTime? @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @db.Timestamptz(6)
+
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionTokenHash])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model PaymentAccount {
+  id          String        @id @default(uuid()) @db.Uuid
+  userId      String        @db.Uuid
+  name        String        @db.VarChar(100)
+  institution String?       @db.VarChar(100)
+  accountType AccountType   @default(SAVINGS)
+  mask        String?       @db.VarChar(8)
+  createdAt   DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(6)
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([userId])
+  @@map("payment_accounts")
+}
+
+model Commitment {
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @db.Uuid
+  name               String             @db.VarChar(150)
+  merchant           String             @db.VarChar(150)
+  category           CommitmentCategory
+  type               CommitmentType
+  amountMinor        BigInt             @db.BigInt
+  currency           String             @default("INR") @db.VarChar(3)
+  cadence            Cadence
+  customCadenceDays  Int?               @db.Integer
+  nextDueAt          DateTime           @db.Date
+  status             CommitmentStatus   @default(ACTIVE)
+  source             CommitmentSource   @default(MANUAL_ENTRY)
+  verificationState  VerificationState  @default(USER_VERIFIED)
+  confidence         Float              @default(1.0)
+  cancellationUrl    String?            @db.Text
+  paymentMethodLabel String?            @db.VarChar(100)
+  notes              String?            @db.Text
+  createdAt          DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime           @updatedAt @db.Timestamptz(6)
+
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mandates           Mandate[]
+  transactionMatches TransactionMatch[]
+  reminders          Reminder[]
+  notifications      Notification[]
+  detectionCandidates DetectionCandidate[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([nextDueAt])
+  @@index([merchant])
+  @@map("commitments")
+}
+
+model Mandate {
+  id                       String                   @id @default(uuid()) @db.Uuid
+  userId                   String                   @db.Uuid
+  commitmentId             String?                  @db.Uuid
+  kind                     MandateKind
+  providerReference        String?                  @db.VarChar(100)
+  maximumAmountMinor       BigInt?                  @db.BigInt
+  currency                 String                   @default("INR") @db.VarChar(3)
+  frequency                MandateFrequency         @default(MONTHLY)
+  status                   MandateStatus            @default(ACTIVE)
+  verificationState        MandateVerificationState @default(MANUAL_UNVERIFIED)
+  nextExpectedAt           DateTime?                @db.Date
+  cancellationInstructions String?                  @db.Text
+  createdAt                DateTime                 @default(now()) @db.Timestamptz(6)
+  updatedAt                DateTime                 @updatedAt @db.Timestamptz(6)
+
+  user                     User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commitment               Commitment?              @relation(fields: [commitmentId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([commitmentId])
+  @@index([status])
+  @@map("mandates")
+}
+
+model TransactionImport {
+  id                String       @id @default(uuid()) @db.Uuid
+  userId            String       @db.Uuid
+  filename          String       @db.VarChar(255)
+  fileHash          String       @db.VarChar(64)
+  importType        ImportType   @default(CSV)
+  status            ImportStatus @default(PENDING)
+  rowCount          Int          @default(0)
+  validRowCount     Int          @default(0)
+  duplicateRowCount Int          @default(0)
+  errorSummary      Json?        @db.JsonB
+  columnMapping     Json?        @db.JsonB
+  importedAt        DateTime     @default(now()) @db.Timestamptz(6)
+
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions      Transaction[]
+
+  @@index([userId])
+  @@index([fileHash])
+  @@map("transaction_imports")
+}
+
+model Transaction {
+  id                      String               @id @default(uuid()) @db.Uuid
+  userId                  String               @db.Uuid
+  importId                String?              @db.Uuid
+  accountId               String?              @db.Uuid
+  transactionDate         DateTime             @db.Date
+  descriptionOriginal     String               @db.Text
+  merchantNormalized      String               @db.VarChar(150)
+  merchantKey             String               @db.VarChar(100)
+  amountMinor             BigInt               @db.BigInt
+  currency                String               @default("INR") @db.VarChar(3)
+  direction               TransactionDirection @default(DEBIT)
+  externalReference       String?              @db.VarChar(100)
+  fingerprint             String               @db.VarChar(64)
+  isExcludedFromDetection Boolean              @default(false)
+  createdAt               DateTime             @default(now()) @db.Timestamptz(6)
+
+  user                    User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  import                  TransactionImport?   @relation(fields: [importId], references: [id], onDelete: Cascade)
+  account                 PaymentAccount?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  matches                 TransactionMatch[]
+
+  @@index([userId])
+  @@index([fingerprint])
+  @@index([transactionDate])
+  @@index([merchantKey])
+  @@index([direction])
+  @@map("transactions")
+}
+
+model DetectionCandidate {
+  id                  String                @id @default(uuid()) @db.Uuid
+  userId              String                @db.Uuid
+  merchantKey         String                @db.VarChar(100)
+  merchantDisplayName String                @db.VarChar(150)
+  proposedCadence     Cadence
+  proposedAmountMinor BigInt                @db.BigInt
+  amountIsVariable    Boolean               @default(false)
+  minAmountMinor      BigInt?               @db.BigInt
+  maxAmountMinor      BigInt?               @db.BigInt
+  confidence          Float                 @default(0.0)
+  evidence            Json                  @db.JsonB
+  reviewStatus        DetectionReviewStatus @default(PENDING)
+  linkedCommitmentId  String?               @db.Uuid
+  createdAt           DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime              @updatedAt @db.Timestamptz(6)
+
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  linkedCommitment    Commitment?           @relation(fields: [linkedCommitmentId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([reviewStatus])
+  @@index([merchantKey])
+  @@map("detection_candidates")
+}
+
+model TransactionMatch {
+  id            String      @id @default(uuid()) @db.Uuid
+  transactionId String      @db.Uuid
+  commitmentId  String      @db.Uuid
+  matchType     String      @db.VarChar(50)
+  confidence    Float       @default(1.0)
+  reviewedAt    DateTime    @default(now()) @db.Timestamptz(6)
+
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  commitment    Commitment  @relation(fields: [commitmentId], references: [id], onDelete: Cascade)
+
+  @@index([transactionId])
+  @@index([commitmentId])
+  @@map("transaction_matches")
+}
+
+model Reminder {
+  id           String              @id @default(uuid()) @db.Uuid
+  userId       String              @db.Uuid
+  commitmentId String              @db.Uuid
+  reminderType ReminderType        @default(DAYS_BEFORE_DUE)
+  offsetDays   Int                 @default(3) @db.Integer
+  enabled      Boolean             @default(true)
+  channel      NotificationChannel @default(IN_APP)
+  createdAt    DateTime            @default(now()) @db.Timestamptz(6)
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commitment   Commitment          @relation(fields: [commitmentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([commitmentId])
+  @@map("reminders")
+}
+
+model Notification {
+  id           String             @id @default(uuid()) @db.Uuid
+  userId       String             @db.Uuid
+  commitmentId String?            @db.Uuid
+  title        String             @db.VarChar(200)
+  message      String             @db.Text
+  scheduledAt  DateTime           @db.Timestamptz(6)
+  deliveredAt  DateTime?          @db.Timestamptz(6)
+  status       NotificationStatus @default(DELIVERED)
+  isRead       Boolean            @default(false)
+  dedupeKey    String             @unique @db.VarChar(128)
+  createdAt    DateTime           @default(now()) @db.Timestamptz(6)
+
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commitment   Commitment?        @relation(fields: [commitmentId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([isRead])
+  @@index([dedupeKey])
+  @@map("notifications")
+}
+
+model AuditEvent {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  action     String   @db.VarChar(100)
+  entityType String   @db.VarChar(50)
+  entityId   String?  @db.VarChar(64)
+  metadata   Json?    @db.JsonB
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@map("audit_events")
+}
