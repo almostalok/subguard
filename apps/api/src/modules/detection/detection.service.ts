@@ -66,9 +66,13 @@ export class DetectionService {
     const activeMerchantSet = new Set(
       existingCommitments.map((c) => c.merchant.toLowerCase().trim())
     );
-    const dismissedKeySet = new Set(
+    const handledKeySet = new Set(
       existingCandidates
-        .filter((c) => c.reviewStatus === DetectionReviewStatus.DISMISSED)
+        .filter(
+          (c) =>
+            c.reviewStatus === DetectionReviewStatus.DISMISSED ||
+            c.reviewStatus === DetectionReviewStatus.CONFIRMED
+        )
         .map((c) => c.merchantKey)
     );
 
@@ -85,8 +89,8 @@ export class DetectionService {
     }> = [];
 
     for (const [merchantKey, txs] of groups.entries()) {
-      // Skip if previously dismissed by user
-      if (dismissedKeySet.has(merchantKey)) {
+      // Skip if previously reviewed (dismissed or confirmed) by user
+      if (handledKeySet.has(merchantKey)) {
         continue;
       }
 

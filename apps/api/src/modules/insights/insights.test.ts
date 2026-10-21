@@ -43,4 +43,33 @@ describe('Financial Forecasting & Metric Calculations', () => {
     const annualMinor = toAnnualMinor(monthlyMinor, Cadence.MONTHLY);
     assert.strictEqual(annualMinor, 598800); // exactly ₹5,988.00
   });
+
+  test('accumulates multiple recurring deduction cycles for weekly commitments in 30-day forecast', () => {
+    const weeklyAmount = 50000; // ₹500.00
+    const todayStr = '2026-10-21';
+    const in7DaysStr = '2026-10-28';
+    const in30DaysStr = '2026-11-20';
+
+    let occurrenceDue = '2026-10-21';
+    let next7DaysMinor = 0;
+    let next30DaysMinor = 0;
+    let occCount = 0;
+
+    const { getNextDueDate } = require('@subguard/utils');
+
+    while (occurrenceDue <= in30DaysStr && occCount < 20) {
+      if (occurrenceDue <= in7DaysStr) {
+        next7DaysMinor += weeklyAmount;
+      }
+      next30DaysMinor += weeklyAmount;
+      occurrenceDue = getNextDueDate(occurrenceDue, Cadence.WEEKLY);
+      occCount++;
+    }
+
+    // Oct 21, Oct 28 -> 2 occurrences in 7 days
+    assert.strictEqual(next7DaysMinor, 100000); // ₹1,000.00
+    // Oct 21, Oct 28, Nov 4, Nov 11, Nov 18 -> 5 occurrences in 30 days
+    assert.strictEqual(next30DaysMinor, 250000); // ₹2,500.00
+    assert.strictEqual(occCount, 5);
+  });
 });

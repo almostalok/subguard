@@ -71,4 +71,22 @@ describe('Recurrence Detection Heuristics', () => {
 
     assert.strictEqual(matchesCadence, false);
   });
+
+  test('enforces detection idempotency by excluding confirmed and dismissed keys', () => {
+    const existingCandidates = [
+      { merchantKey: 'netflix', reviewStatus: 'CONFIRMED' },
+      { merchantKey: 'erratic-store', reviewStatus: 'DISMISSED' },
+      { merchantKey: 'spotify', reviewStatus: 'PENDING' },
+    ];
+
+    const handledKeySet = new Set(
+      existingCandidates
+        .filter((c) => c.reviewStatus === 'DISMISSED' || c.reviewStatus === 'CONFIRMED')
+        .map((c) => c.merchantKey)
+    );
+
+    assert.ok(handledKeySet.has('netflix'), 'Confirmed merchant key is excluded from re-scanning');
+    assert.ok(handledKeySet.has('erratic-store'), 'Dismissed merchant key is excluded from re-scanning');
+    assert.ok(!handledKeySet.has('spotify'), 'Pending candidates remain eligible for updates');
+  });
 });

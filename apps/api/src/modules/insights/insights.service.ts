@@ -64,7 +64,7 @@ export class InsightsService {
       monthlyTotal += toMonthlyMinor(amt, comm.cadence, comm.customCadenceDays);
       annualTotal += toAnnualMinor(amt, comm.cadence, comm.customCadenceDays);
 
-      // Check occurrences in 7 days and 30 days
+      // Check all occurrences falling in 7 days and 30 days
       let due = comm.nextDueAt.toISOString().slice(0, 10);
       let count = 0;
       while (due < todayStr && count < 50) {
@@ -72,11 +72,19 @@ export class InsightsService {
         count++;
       }
 
-      if (due <= in7DaysStr) {
-        next7DaysMinor += amt;
-      }
-      if (due <= in30DaysStr) {
+      let occurrenceDue = due;
+      let occCount = 0;
+      while (occurrenceDue <= in30DaysStr && occCount < 20) {
+        if (occurrenceDue <= in7DaysStr) {
+          next7DaysMinor += amt;
+        }
         next30DaysMinor += amt;
+        occurrenceDue = getNextDueDate(
+          occurrenceDue,
+          comm.cadence,
+          comm.customCadenceDays
+        );
+        occCount++;
       }
     }
 
