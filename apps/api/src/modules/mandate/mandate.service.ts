@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import {
   CreateMandateInput,
@@ -46,6 +50,15 @@ export class MandateService {
   }
 
   async create(userId: string, input: CreateMandateInput) {
+    if (input.commitmentId) {
+      const commitment = await this.prisma.commitment.findFirst({
+        where: { id: input.commitmentId, userId },
+      });
+      if (!commitment) {
+        throw new BadRequestException('Referenced commitment not found or unauthorized');
+      }
+    }
+
     const mandate = await this.prisma.mandate.create({
       data: {
         userId,
@@ -99,6 +112,15 @@ export class MandateService {
 
     if (!existing) {
       throw new NotFoundException('Mandate not found');
+    }
+
+    if (input.commitmentId !== undefined && input.commitmentId !== null) {
+      const commitment = await this.prisma.commitment.findFirst({
+        where: { id: input.commitmentId, userId },
+      });
+      if (!commitment) {
+        throw new BadRequestException('Referenced commitment not found or unauthorized');
+      }
     }
 
     const updated = await this.prisma.mandate.update({

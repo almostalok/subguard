@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import {
   NotificationStatus,
@@ -64,6 +64,14 @@ export class NotificationService {
   }
 
   async createReminder(userId: string, input: CreateReminderInput) {
+    const commitment = await this.prisma.commitment.findFirst({
+      where: { id: input.commitmentId, userId },
+    });
+
+    if (!commitment) {
+      throw new BadRequestException('Referenced commitment not found or unauthorized');
+    }
+
     const reminder = await this.prisma.reminder.create({
       data: {
         userId,
