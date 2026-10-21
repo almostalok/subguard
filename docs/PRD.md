@@ -21,7 +21,7 @@ Individuals in India face a compounding problem with recurring charges:
 ---
 
 ## 2. Core Principles
-
+  
 1. **Financial clarity before decorative analytics:** Every chart and metric must answer a decision question.
 2. **Explainable results before AI-generated guesses:** Recurrence candidate scores and cadence matches expose exact rules, dates, and amounts.
 3. **No surprise deductions:** If evidence exists in bank statements or mandate records, warning is guaranteed.
