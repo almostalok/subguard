@@ -30,9 +30,11 @@ export default function OnboardingPage() {
   const [subPaymentMethod, setSubPaymentMethod] = useState('Credit Card ending 1234');
 
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleCompleteSetup = async (addSubscription: boolean) => {
     setIsLoading(true);
+    setError(null);
     try {
       // 1. Update preferences
       await api.updateProfile({
@@ -61,9 +63,11 @@ export default function OnboardingPage() {
       router.push('/');
     } catch (err: unknown) {
       console.error(err);
+      setError(err instanceof Error ? err.message : 'An error occurred during onboarding setup');
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4">
@@ -178,7 +182,14 @@ export default function OnboardingPage() {
                 helperText="No card numbers or credentials. Just a label for your reference."
               />
 
+              {error && (
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-500 leading-relaxed">
+                  {error}
+                </div>
+              )}
+
               <div className="pt-2 flex flex-col gap-2.5">
+
                 <Button
                   variant="primary"
                   className="w-full"

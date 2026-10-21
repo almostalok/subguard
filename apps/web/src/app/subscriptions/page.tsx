@@ -59,6 +59,9 @@ function SubscriptionsContent() {
   const [formPaymentMethod, setFormPaymentMethod] = useState('');
   const [formCancellationUrl, setFormCancellationUrl] = useState('');
   const [formNotes, setFormNotes] = useState('');
+  const [formStatus, setFormStatus] = useState<CommitmentStatus>(
+    CommitmentStatus.ACTIVE
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -102,6 +105,7 @@ function SubscriptionsContent() {
     setFormPaymentMethod('');
     setFormCancellationUrl('');
     setFormNotes('');
+    setFormStatus(CommitmentStatus.ACTIVE);
     setFormError(null);
     setIsModalOpen(true);
   };
@@ -118,6 +122,7 @@ function SubscriptionsContent() {
     setFormPaymentMethod(item.paymentMethodLabel || '');
     setFormCancellationUrl(item.cancellationUrl || '');
     setFormNotes(item.notes || '');
+    setFormStatus(item.status);
     setFormError(null);
     setIsModalOpen(true);
   };
@@ -143,6 +148,7 @@ function SubscriptionsContent() {
           amountMinor,
           cadence: formCadence,
           nextDueAt: formNextDue,
+          status: formStatus,
           paymentMethodLabel: formPaymentMethod || null,
           cancellationUrl: formCancellationUrl || null,
           notes: formNotes || null,
@@ -157,7 +163,7 @@ function SubscriptionsContent() {
           currency: 'INR',
           cadence: formCadence,
           nextDueAt: formNextDue,
-          status: CommitmentStatus.ACTIVE,
+          status: formStatus,
           paymentMethodLabel: formPaymentMethod || null,
           cancellationUrl: formCancellationUrl || null,
           notes: formNotes || null,
@@ -313,6 +319,23 @@ function SubscriptionsContent() {
                 </div>
 
                 <div className="flex items-center gap-1.5">
+                  <select
+                    value={item.status}
+                    onChange={(e) =>
+                      handleStatusChange(
+                        item.id,
+                        e.target.value as CommitmentStatus
+                      )
+                    }
+                    className="text-xs bg-surface-subtle border border-border rounded-md px-2 py-1 text-primary focus:outline-none focus:ring-1 focus:ring-primary min-h-[36px]"
+                    aria-label="Change commitment status"
+                  >
+                    <option value="ACTIVE">Active</option>
+                    <option value="PAUSED">Paused</option>
+                    <option value="CANCELLED">Cancelled</option>
+                    <option value="ARCHIVED">Archived</option>
+                  </select>
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -443,13 +466,26 @@ function SubscriptionsContent() {
               />
             </div>
 
-            <Input
-              label="Payment Method Label"
-              placeholder="e.g. HDFC Infinia ending 1042, Google Pay AutoPay"
-              value={formPaymentMethod}
-              onChange={(e) => setFormPaymentMethod(e.target.value)}
-              helperText="Safe label. No card numbers or passwords stored."
-            />
+            <div className="grid grid-cols-2 gap-3">
+              <Select
+                label="Status"
+                value={formStatus}
+                onChange={(e) => setFormStatus(e.target.value as CommitmentStatus)}
+                options={[
+                  { value: 'ACTIVE', label: 'Active' },
+                  { value: 'PAUSED', label: 'Paused' },
+                  { value: 'CANCELLED', label: 'Cancelled' },
+                  { value: 'ARCHIVED', label: 'Archived' },
+                ]}
+              />
+              <Input
+                label="Payment Method Label"
+                placeholder="e.g. HDFC Infinia ending 1042"
+                value={formPaymentMethod}
+                onChange={(e) => setFormPaymentMethod(e.target.value)}
+                helperText="Safe label. No card numbers or passwords stored."
+              />
+            </div>
 
             <Input
               label="Official Cancellation URL"
