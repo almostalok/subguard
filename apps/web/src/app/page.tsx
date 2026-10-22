@@ -8,27 +8,25 @@ import {
   FinancialSummaryDto,
   CategoryBreakdownDto,
   RadarItemDto,
-  CommitmentDto,
   TransactionDto,
 } from '@subguard/types';
 import {
-  StatCard,
-  Card,
-  Button,
   Badge,
   EvidenceBadge,
+  Button,
 } from '@subguard/ui';
 import { formatCurrency } from '@subguard/utils';
 import {
   Radar,
   CreditCard,
   Upload,
-  Sparkles,
-  AlertTriangle,
+  ScanLine,
   ArrowRight,
   TrendingUp,
   Clock,
-  ExternalLink,
+  Layers,
+  Activity,
+  AlertCircle,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -47,7 +45,7 @@ export default function DashboardPage() {
         const [sum, cats, radar, txs] = await Promise.all([
           api.getSummary(),
           api.getCategories(),
-          api.getRadarForecast(14), // Next 14 days lookahead
+          api.getRadarForecast(14),
           api.getTransactions({ limit: 5 }),
         ]);
         setSummary(sum);
@@ -69,11 +67,16 @@ export default function DashboardPage() {
       {/* Header with Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-primary">
-            Deduction Dashboard
-          </h1>
-          <p className="text-xs sm:text-sm text-muted">
-            Know what can charge you. Before it does.
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+              Overview
+            </h1>
+            <span className="px-2 py-0.5 rounded-sm bg-[#111111] border border-[#27272A] text-[10px] font-mono text-zinc-400">
+              AUDIT READY
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-[#888888] font-sans">
+            Continuous recurring payment monitoring & deduction radar for India.
           </p>
         </div>
 
@@ -91,7 +94,7 @@ export default function DashboardPage() {
           </Link>
           <Link href="/detection">
             <Button variant="secondary" size="sm">
-              <Sparkles className="w-3.5 h-3.5 mr-1.5 text-status-warning" />
+              <ScanLine className="w-3.5 h-3.5 mr-1.5 text-zinc-400" />
               <span>Detect</span>
             </Button>
           </Link>
@@ -100,8 +103,11 @@ export default function DashboardPage() {
 
       {/* Error state */}
       {error && (
-        <div className="p-4 mb-6 bg-status-risk-bg border border-status-risk-border rounded-xl text-sm text-status-risk flex items-center justify-between">
-          <span>{error}</span>
+        <div className="p-4 mb-6 bg-red-950/40 border border-red-800/40 rounded-lg text-sm text-red-300 flex items-center justify-between font-mono">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+            <span>{error}</span>
+          </div>
           <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
             Retry
           </Button>
@@ -111,113 +117,153 @@ export default function DashboardPage() {
       {/* Loading state skeleton */}
       {isLoading && (
         <div className="space-y-6 animate-pulse">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-[#222222] divide-y sm:divide-y-0 sm:divide-x divide-[#222222] bg-[#0A0A0A] rounded-lg overflow-hidden">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-28 bg-surface border border-border rounded-xl" />
+              <div key={i} className="h-32 p-5 bg-[#0A0A0A]" />
             ))}
           </div>
-          <div className="h-64 bg-surface border border-border rounded-xl" />
+          <div className="h-64 bg-[#0A0A0A] border border-[#222222] rounded-lg" />
         </div>
       )}
 
       {!isLoading && summary && (
         <div className="space-y-6">
-          {/* Top KPI Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard
-              label="Monthly Commitment"
-              amountMinor={summary.monthlyCommitmentMinor}
-              currency={summary.currency}
-              description={`Standardized across ${summary.activeCommitmentsCount} active recurring services`}
-            />
+          {/* Top KPI Grid (Vercel Interlocking Border Grid) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-[#222222] divide-y sm:divide-y-0 sm:divide-x divide-[#222222] bg-[#0A0A0A] rounded-lg overflow-hidden shadow-xs">
+            {/* KPI 1 */}
+            <div className="p-5 flex flex-col justify-between hover:bg-[#111111]/50 transition-colors">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-[11px] font-mono tracking-wider text-[#888888] uppercase">
+                  Monthly Commitment
+                </span>
+                <span className="text-[10px] font-mono text-zinc-500">
+                  {summary.activeCommitmentsCount} active
+                </span>
+              </div>
+              <div className="text-2xl lg:text-3xl font-semibold tracking-tight text-white font-mono tabular-nums">
+                {formatCurrency(summary.monthlyCommitmentMinor, summary.currency)}
+              </div>
+              <p className="mt-2.5 text-xs text-[#888888]">
+                Standardized across recurring services
+              </p>
+            </div>
 
-            <StatCard
-              label="Annualized Spend"
-              amountMinor={summary.annualCommitmentMinor}
-              currency={summary.currency}
-              description="Projected 12-month commitment"
-            />
+            {/* KPI 2 */}
+            <div className="p-5 flex flex-col justify-between hover:bg-[#111111]/50 transition-colors">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-[11px] font-mono tracking-wider text-[#888888] uppercase">
+                  Annualized Spend
+                </span>
+                <span className="text-[10px] font-mono text-zinc-500">
+                  RUN-RATE
+                </span>
+              </div>
+              <div className="text-2xl lg:text-3xl font-semibold tracking-tight text-white font-mono tabular-nums">
+                {formatCurrency(summary.annualCommitmentMinor, summary.currency)}
+              </div>
+              <p className="mt-2.5 text-xs text-[#888888]">
+                Projected 12-month commitment
+              </p>
+            </div>
 
-            <StatCard
-              label="Upcoming in 7 Days"
-              amountMinor={summary.next7DaysMinor}
-              currency={summary.currency}
-              description="Immediate cash outflow scheduled"
-              badge={
-                summary.next7DaysMinor > 0 ? (
+            {/* KPI 3 */}
+            <div className="p-5 flex flex-col justify-between hover:bg-[#111111]/50 transition-colors">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-[11px] font-mono tracking-wider text-[#888888] uppercase">
+                  Upcoming in 7 Days
+                </span>
+                {summary.next7DaysMinor > 0 ? (
                   <Badge variant="warning">Action window</Badge>
-                ) : undefined
-              }
-            />
+                ) : (
+                  <Badge variant="neutral">None due</Badge>
+                )}
+              </div>
+              <div className="text-2xl lg:text-3xl font-semibold tracking-tight text-white font-mono tabular-nums">
+                {formatCurrency(summary.next7DaysMinor, summary.currency)}
+              </div>
+              <p className="mt-2.5 text-xs text-[#888888]">
+                Scheduled immediate debit forecast
+              </p>
+            </div>
 
-            <StatCard
-              label="Requires Attention"
-              value={summary.itemsRequiringReviewCount}
-              description="Trials ending or candidates pending review"
-              badge={
-                summary.itemsRequiringReviewCount > 0 ? (
+            {/* KPI 4 */}
+            <div className="p-5 flex flex-col justify-between hover:bg-[#111111]/50 transition-colors">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-[11px] font-mono tracking-wider text-[#888888] uppercase">
+                  Audit Attention
+                </span>
+                {summary.itemsRequiringReviewCount > 0 ? (
                   <Badge variant="risk">Needs Review</Badge>
                 ) : (
                   <Badge variant="success">All Clear</Badge>
-                )
-              }
-            />
+                )}
+              </div>
+              <div className="text-2xl lg:text-3xl font-semibold tracking-tight text-white font-mono tabular-nums">
+                {summary.itemsRequiringReviewCount}
+              </div>
+              <p className="mt-2.5 text-xs text-[#888888]">
+                Trials ending or candidates pending review
+              </p>
+            </div>
           </div>
 
           {/* Radar Lookahead Widget */}
-          <Card padding="md">
-            <div className="flex items-center justify-between pb-4 border-b border-border">
-              <div className="flex items-center gap-2">
-                <Radar className="w-5 h-5 text-primary" />
-                <h2 className="text-base font-semibold text-primary">
+          <div className="bg-[#0A0A0A] border border-[#222222] rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#222222] bg-[#0E0E0E]">
+              <div className="flex items-center gap-2.5">
+                <Radar className="w-4 h-4 text-white" />
+                <h2 className="text-sm font-semibold text-white tracking-tight">
                   Deduction Radar — Next 14 Days
                 </h2>
+                <span className="text-[10px] font-mono text-zinc-500 bg-[#161616] px-2 py-0.5 rounded border border-zinc-800">
+                  {radarItems.length} SCHEDULED
+                </span>
               </div>
               <Link
                 href="/radar"
-                className="text-xs font-medium text-primary hover:text-muted flex items-center gap-1"
+                className="text-xs font-mono text-zinc-400 hover:text-white flex items-center gap-1 transition-colors"
               >
-                <span>View Full Timeline</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>timeline</span>
+                <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
             {radarItems.length === 0 ? (
-              <div className="py-8 text-center">
-                <p className="text-sm font-medium text-primary">No debits scheduled in the next 14 days</p>
-                <p className="text-xs text-muted mt-1">
+              <div className="py-12 text-center">
+                <p className="text-sm font-medium text-white">No debits scheduled in the next 14 days</p>
+                <p className="text-xs text-[#888888] mt-1 font-sans">
                   Add subscriptions or import your bank statement to populate your radar.
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-border mt-2">
+              <div className="divide-y divide-[#1F1F1F]">
                 {radarItems.slice(0, 5).map((item) => (
                   <div
                     key={item.id}
-                    className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                    className="p-4 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#111111] transition-colors"
                   >
                     <div className="flex items-start sm:items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-surface-subtle flex items-center justify-center font-bold text-xs text-primary shrink-0">
+                      <div className="w-9 h-9 rounded-md bg-[#161616] border border-[#27272A] flex items-center justify-center font-mono font-bold text-xs text-white shrink-0">
                         {item.merchant.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-primary">
+                          <span className="text-sm font-medium text-white">
                             {item.title}
                           </span>
                           <EvidenceBadge level={item.evidenceLevel} />
                         </div>
-                        <p className="text-xs text-muted">
-                          Expected on {item.dueDate} via {item.paymentMethodLabel || 'Registered account'}
+                        <p className="text-xs text-[#888888] font-mono mt-0.5">
+                          Due {item.dueDate} • {item.paymentMethodLabel || 'Registered mandate'}
                         </p>
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <span className="text-sm font-mono font-semibold tabular-nums text-primary">
+                    <div className="text-right shrink-0">
+                      <span className="text-sm font-mono font-semibold tabular-nums text-white">
                         {formatCurrency(item.amountMinor, item.currency)}
                       </span>
-                      <span className="block text-[11px] text-muted capitalize">
+                      <span className="block text-[10px] font-mono text-[#888888] uppercase">
                         {item.cadence.toLowerCase()}
                       </span>
                     </div>
@@ -225,107 +271,117 @@ export default function DashboardPage() {
                 ))}
               </div>
             )}
-          </Card>
+          </div>
 
           {/* Two-column layout: Spending by Category & Recent Transactions */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Category Breakdown */}
-            <Card padding="md">
-              <div className="flex items-center justify-between pb-3 border-b border-border mb-4">
-                <h3 className="text-sm font-semibold text-primary">
-                  Commitment by Category
-                </h3>
+            <div className="bg-[#0A0A0A] border border-[#222222] rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#222222] bg-[#0E0E0E]">
+                <div className="flex items-center gap-2">
+                  <Layers className="w-3.5 h-3.5 text-zinc-400" />
+                  <h3 className="text-xs font-semibold text-white tracking-tight uppercase font-mono">
+                    Commitment by Category
+                  </h3>
+                </div>
                 <Link
                   href="/insights"
-                  className="text-xs text-muted hover:text-primary flex items-center gap-1"
+                  className="text-xs font-mono text-zinc-400 hover:text-white flex items-center gap-1 transition-colors"
                 >
-                  <span>Details</span>
+                  <span>breakdown</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
 
-              {categories.length === 0 ? (
-                <p className="py-6 text-center text-xs text-muted">
-                  No active categories recorded yet.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {categories.map((cat) => (
-                    <div key={cat.category} className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="font-medium text-primary capitalize">
-                          {cat.category.toLowerCase().replace('_', ' ')}
-                        </span>
-                        <span className="font-mono tabular-nums text-muted">
-                          {formatCurrency(cat.monthlyEquivalentMinor, 'INR')}/mo ({cat.percentageOfTotal}%)
-                        </span>
+              <div className="p-5">
+                {categories.length === 0 ? (
+                  <p className="py-6 text-center text-xs text-[#888888]">
+                    No active categories recorded yet.
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {categories.map((cat) => (
+                      <div key={cat.category} className="space-y-1.5">
+                        <div className="flex justify-between text-xs font-mono">
+                          <span className="text-white capitalize">
+                            {cat.category.toLowerCase().replace('_', ' ')}
+                          </span>
+                          <span className="tabular-nums text-[#888888]">
+                            {formatCurrency(cat.monthlyEquivalentMinor, 'INR')}/mo ({cat.percentageOfTotal}%)
+                          </span>
+                        </div>
+                        <div className="w-full bg-[#1A1A1A] rounded-full h-1 overflow-hidden">
+                          <div
+                            className="bg-white h-1 rounded-full transition-all duration-300"
+                            style={{ width: `${cat.percentageOfTotal}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full bg-surface-subtle rounded-full h-1.5 overflow-hidden">
-                        <div
-                          className="bg-primary h-1.5 rounded-full"
-                          style={{ width: `${cat.percentageOfTotal}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Recent Actual Transactions */}
-            <Card padding="md">
-              <div className="flex items-center justify-between pb-3 border-b border-border mb-4">
-                <h3 className="text-sm font-semibold text-primary">
-                  Recent Statement Ingestions
-                </h3>
+            <div className="bg-[#0A0A0A] border border-[#222222] rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#222222] bg-[#0E0E0E]">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-3.5 h-3.5 text-zinc-400" />
+                  <h3 className="text-xs font-semibold text-white tracking-tight uppercase font-mono">
+                    Recent Statement Ingestions
+                  </h3>
+                </div>
                 <Link
                   href="/transactions"
-                  className="text-xs text-muted hover:text-primary flex items-center gap-1"
+                  className="text-xs font-mono text-zinc-400 hover:text-white flex items-center gap-1 transition-colors"
                 >
-                  <span>All Transactions</span>
+                  <span>all records</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
 
-              {recentTransactions.length === 0 ? (
-                <div className="py-6 text-center">
-                  <p className="text-xs text-muted">No transactions imported yet.</p>
-                  <Link href="/import" className="inline-block mt-2">
-                    <Button variant="outline" size="sm">
-                      Upload Bank Statement
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="divide-y divide-border">
-                  {recentTransactions.map((tx) => (
-                    <div
-                      key={tx.id}
-                      className="py-2.5 flex items-center justify-between text-xs"
-                    >
-                      <div className="min-w-0 pr-3">
-                        <p className="font-medium text-primary truncate">
-                          {tx.merchantNormalized}
-                        </p>
-                        <p className="text-[11px] text-muted truncate">
-                          {tx.transactionDate} • {tx.descriptionOriginal}
-                        </p>
+              <div className="p-2 sm:p-3">
+                {recentTransactions.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <p className="text-xs text-[#888888]">No transactions imported yet.</p>
+                    <Link href="/import" className="inline-block mt-3">
+                      <Button variant="outline" size="sm">
+                        Upload Bank Statement
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-[#1F1F1F]">
+                    {recentTransactions.map((tx) => (
+                      <div
+                        key={tx.id}
+                        className="p-2.5 flex items-center justify-between text-xs hover:bg-[#111111] rounded-md transition-colors"
+                      >
+                        <div className="min-w-0 pr-3">
+                          <p className="font-medium text-white truncate">
+                            {tx.merchantNormalized}
+                          </p>
+                          <p className="text-[11px] text-[#888888] font-mono truncate">
+                            {tx.transactionDate} • {tx.descriptionOriginal}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span
+                            className={`font-mono font-semibold tabular-nums ${
+                              tx.direction === 'DEBIT' ? 'text-white' : 'text-emerald-400'
+                            }`}
+                          >
+                            {tx.direction === 'DEBIT' ? '-' : '+'}
+                            {formatCurrency(tx.amountMinor, tx.currency)}
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-right shrink-0">
-                        <span
-                          className={`font-mono font-semibold tabular-nums ${
-                            tx.direction === 'DEBIT' ? 'text-primary' : 'text-status-verified'
-                          }`}
-                        >
-                          {tx.direction === 'DEBIT' ? '-' : '+'}
-                          {formatCurrency(tx.amountMinor, tx.currency)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
