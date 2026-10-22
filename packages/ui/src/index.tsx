@@ -3,7 +3,7 @@ import { EvidenceLevel, CommitmentStatus, MandateStatus } from '@subguard/types'
 import { formatCurrency } from '@subguard/utils';
 
 // ==========================================
-// 1. Button Component
+// 1. Button Component (Vercel Grid Style)
 // ==========================================
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -15,18 +15,18 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ children, variant = 'primary', size = 'md', isLoading = false, className = '', disabled, ...props }, ref) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium transition-all duration-150 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none select-none min-h-[44px]';
+      'inline-flex items-center justify-center font-medium transition-all duration-150 rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 disabled:opacity-40 disabled:pointer-events-none select-none min-h-[40px]';
 
     const variantStyles = {
-      primary: 'bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:ring-primary shadow-sm',
-      secondary: 'bg-surface-subtle text-primary border border-border hover:bg-surface-hover focus-visible:ring-border',
-      outline: 'bg-transparent text-primary border border-border hover:bg-surface-subtle focus-visible:ring-border',
-      danger: 'bg-status-risk text-white hover:bg-red-700 focus-visible:ring-status-risk shadow-sm',
-      ghost: 'bg-transparent text-primary hover:bg-surface-subtle focus-visible:ring-border',
+      primary: 'bg-white text-black hover:bg-neutral-200 border border-transparent font-semibold shadow-xs',
+      secondary: 'bg-[#0A0A0A] text-[#EDEDED] border border-[#27272A] hover:bg-[#171717] hover:border-[#3F3F46]',
+      outline: 'bg-transparent text-[#EDEDED] border border-[#27272A] hover:bg-[#141414] hover:border-[#3F3F46]',
+      danger: 'bg-red-950/40 text-red-400 border border-red-800/50 hover:bg-red-900/40',
+      ghost: 'bg-transparent text-[#888888] hover:text-[#EDEDED] hover:bg-[#141414]',
     };
 
     const sizeStyles = {
-      sm: 'px-3 py-1.5 text-xs font-medium',
+      sm: 'px-3 py-1.5 text-xs',
       md: 'px-4 py-2 text-sm',
       lg: 'px-6 py-2.5 text-base',
     };
@@ -41,7 +41,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <span className="flex items-center gap-2">
             <svg
-              className="animate-spin h-4 w-4 text-current"
+              className="animate-spin h-3.5 w-3.5 text-current"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -59,7 +59,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            <span>Processing...</span>
+            <span className="font-mono text-xs">PROCESSING</span>
           </span>
         ) : (
           children
@@ -71,7 +71,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 // ==========================================
-// 2. Badge Component
+// 2. Badge Components (Technical Vercel Tags)
 // ==========================================
 
 export interface BadgeProps {
@@ -87,15 +87,15 @@ export const Badge: React.FC<BadgeProps> = ({
   size = 'sm',
   className = '',
 }) => {
-  const baseStyles = 'inline-flex items-center font-medium rounded-full tracking-wide uppercase';
-  const sizeStyles = size === 'sm' ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs';
+  const baseStyles = 'inline-flex items-center font-mono font-medium rounded-md uppercase tracking-wider transition-colors';
+  const sizeStyles = size === 'sm' ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-xs';
 
   const variantStyles = {
-    neutral: 'bg-stone-100 text-stone-700 border border-stone-200',
-    success: 'bg-status-verified-bg text-status-verified border border-status-verified-border',
-    warning: 'bg-status-warning-bg text-status-warning border border-status-warning-border',
-    risk: 'bg-status-risk-bg text-status-risk border border-status-risk-border',
-    info: 'bg-status-info-bg text-status-info border border-status-info-border',
+    neutral: 'bg-zinc-900 text-zinc-300 border border-zinc-800',
+    success: 'bg-emerald-950/40 text-emerald-400 border border-emerald-800/40',
+    warning: 'bg-amber-950/40 text-amber-400 border border-amber-800/40',
+    risk: 'bg-red-950/40 text-red-400 border border-red-800/40',
+    info: 'bg-blue-950/40 text-blue-400 border border-blue-800/40',
   };
 
   return (
@@ -137,7 +137,7 @@ export const EvidenceBadge: React.FC<{ level: EvidenceLevel; className?: string 
     case EvidenceLevel.NEEDS_REVIEW:
       return (
         <Badge variant="risk" className={className}>
-          Needs Review
+          Review Needed
         </Badge>
       );
     default:
@@ -166,7 +166,7 @@ export const StatusBadge: React.FC<{
 };
 
 // ==========================================
-// 3. Card Component
+// 3. Card Component (Vercel Modular Grid Card)
 // ==========================================
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -184,13 +184,13 @@ export const Card: React.FC<CardProps> = ({
   const paddingStyles = {
     none: 'p-0',
     sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8',
+    md: 'p-5 sm:p-6',
+    lg: 'p-6 sm:p-8',
   };
 
   return (
     <div
-      className={`bg-surface border border-border rounded-xl shadow-sm transition-all duration-150 ${paddingStyles[padding]} ${className}`}
+      className={`bg-[#0A0A0A] border border-[#222222] rounded-lg transition-all duration-150 ${paddingStyles[padding]} ${className}`}
       {...props}
     >
       {children}
@@ -199,7 +199,7 @@ export const Card: React.FC<CardProps> = ({
 };
 
 // ==========================================
-// 4. StatCard Component (KPI)
+// 4. StatCard Component (Vercel Grid Metric)
 // ==========================================
 
 export interface StatCardProps {
@@ -229,25 +229,25 @@ export const StatCard: React.FC<StatCardProps> = ({
     typeof amountMinor === 'number' ? formatCurrency(amountMinor, currency) : value;
 
   return (
-    <Card padding="md" className={`flex flex-col justify-between ${className}`}>
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="text-xs font-medium uppercase tracking-wider text-muted">
+    <div className={`bg-[#0A0A0A] border border-[#222222] p-5 rounded-lg flex flex-col justify-between hover:border-[#333333] transition-colors ${className}`}>
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <span className="text-[11px] font-mono tracking-wider text-[#888888] uppercase">
           {label}
         </span>
         {badge}
       </div>
-      <div className="text-2xl lg:text-3xl font-semibold tracking-tight text-primary font-mono tabular-nums">
+      <div className="text-2xl lg:text-3xl font-semibold tracking-tight text-[#EDEDED] font-mono tabular-nums">
         {displayValue}
       </div>
       {description && (
-        <p className="mt-2 text-xs text-muted leading-relaxed">{description}</p>
+        <p className="mt-2.5 text-xs text-[#888888] leading-relaxed">{description}</p>
       )}
-    </Card>
+    </div>
   );
 };
 
 // ==========================================
-// 5. Input, Select, Textarea
+// 5. Input, Select, Textarea (Vercel Inputs)
 // ==========================================
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -263,20 +263,20 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-xs font-semibold uppercase tracking-wider text-primary">
+          <label htmlFor={inputId} className="text-[11px] font-mono uppercase tracking-wider text-[#A1A1A1]">
             {label}
           </label>
         )}
         <input
           ref={ref}
           id={inputId}
-          className={`w-full px-3.5 py-2.5 text-sm bg-surface text-primary border rounded-lg transition-colors placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-h-[44px] ${
-            error ? 'border-status-risk ring-1 ring-status-risk' : 'border-border hover:border-border-strong'
+          className={`w-full px-3 py-2 text-sm bg-[#0A0A0A] text-[#EDEDED] border rounded-md transition-colors placeholder:text-zinc-600 focus:outline-none focus:border-white focus:ring-1 focus:ring-white min-h-[40px] font-sans ${
+            error ? 'border-red-500 ring-1 ring-red-500' : 'border-[#27272A] hover:border-[#3F3F46]'
           } ${className}`}
           {...props}
         />
-        {error && <span className="text-xs text-status-risk font-medium">{error}</span>}
-        {helperText && !error && <span className="text-xs text-muted">{helperText}</span>}
+        {error && <span className="text-xs text-red-400 font-mono">{error}</span>}
+        {helperText && !error && <span className="text-xs text-[#888888]">{helperText}</span>}
       </div>
     );
   }
@@ -296,25 +296,25 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="w-full flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={selectId} className="text-xs font-semibold uppercase tracking-wider text-primary">
+          <label htmlFor={selectId} className="text-[11px] font-mono uppercase tracking-wider text-[#A1A1A1]">
             {label}
           </label>
         )}
         <select
           ref={ref}
           id={selectId}
-          className={`w-full px-3.5 py-2.5 text-sm bg-surface text-primary border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-h-[44px] ${
-            error ? 'border-status-risk' : 'border-border hover:border-border-strong'
+          className={`w-full px-3 py-2 text-sm bg-[#0A0A0A] text-[#EDEDED] border rounded-md transition-colors focus:outline-none focus:border-white focus:ring-1 focus:ring-white min-h-[40px] font-sans ${
+            error ? 'border-red-500' : 'border-[#27272A] hover:border-[#3F3F46]'
           } ${className}`}
           {...props}
         >
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
+            <option key={opt.value} value={opt.value} className="bg-[#111111] text-[#EDEDED]">
               {opt.label}
             </option>
           ))}
         </select>
-        {error && <span className="text-xs text-status-risk font-medium">{error}</span>}
+        {error && <span className="text-xs text-red-400 font-mono">{error}</span>}
       </div>
     );
   }
@@ -322,7 +322,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
 Select.displayName = 'Select';
 
 // ==========================================
-// 6. Modal / Dialog Component
+// 6. Modal / Dialog Component (Vercel Modal)
 // ==========================================
 
 export interface ModalProps {
@@ -346,20 +346,20 @@ export const Modal: React.FC<ModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150"
     >
-      <div className="relative w-full max-w-lg bg-surface border border-border rounded-2xl shadow-xl overflow-hidden p-6">
-        <div className="flex items-start justify-between pb-4 border-b border-border">
+      <div className="relative w-full max-w-lg bg-[#0A0A0A] border border-[#27272A] rounded-lg shadow-2xl overflow-hidden p-6">
+        <div className="flex items-start justify-between pb-4 border-b border-[#222222]">
           <div>
-            <h3 className="text-lg font-semibold text-primary">{title}</h3>
+            <h3 className="text-base font-semibold text-[#EDEDED]">{title}</h3>
             {description && (
-              <p className="mt-1 text-xs text-muted">{description}</p>
+              <p className="mt-1 text-xs text-[#888888]">{description}</p>
             )}
           </div>
           <button
             onClick={onClose}
             aria-label="Close modal"
-            className="p-1 rounded-md text-muted hover:text-primary hover:bg-surface-subtle transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="p-1 rounded-md text-[#888888] hover:text-[#EDEDED] hover:bg-[#141414] transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center font-mono text-sm"
           >
             ✕
           </button>
