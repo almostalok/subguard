@@ -78,49 +78,49 @@ export default function RadarPage() {
         </div>
 
         {/* Horizon selector */}
-        <div className="flex items-center gap-1 bg-surface-subtle p-1 rounded-lg border border-border">
+        <div className="flex items-center gap-1 bg-[#0A0A0A] p-1 rounded-md border border-[#222222]">
           {[14, 30, 60].map((d) => (
             <button
               key={d}
               onClick={() => setDaysAhead(d)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors min-h-[36px] ${
+              className={`px-3 py-1.5 text-xs font-mono font-medium rounded transition-colors min-h-[32px] ${
                 daysAhead === d
-                  ? 'bg-surface text-primary shadow-xs'
-                  : 'text-muted hover:text-primary'
+                  ? 'bg-white text-black font-semibold shadow-xs'
+                  : 'text-[#888888] hover:text-white'
               }`}
             >
-              {d} Days
+              {d}d
             </button>
           ))}
         </div>
       </div>
 
       {/* Evidence Guidance Banner */}
-      <div className="mb-6 p-4 bg-surface border border-border rounded-xl flex items-start gap-3 text-xs text-muted leading-relaxed">
-        <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+      <div className="mb-6 p-4 bg-[#0A0A0A] border border-[#222222] rounded-lg flex items-start gap-3 text-xs text-[#888888] leading-relaxed">
+        <Info className="w-4 h-4 text-white shrink-0 mt-0.5" />
         <div>
-          <span className="font-semibold text-primary">
+          <span className="font-semibold text-white">
             Explainable Evidence Model:
           </span>{' '}
           SubGuard never presents predictions as guaranteed future debits. Items are tagged as{' '}
-          <span className="text-status-verified font-medium">Confirmed</span> (active verified commitments),{' '}
-          <span className="text-status-info font-medium">Expected</span> (from cadence schedule),{' '}
-          <span className="text-status-warning font-medium">Potential</span> (detected candidate), or{' '}
-          <span className="text-status-risk font-medium">Needs Review</span> (trial expiration or past due).
+          <span className="text-emerald-400 font-mono">Confirmed</span> (active verified commitments),{' '}
+          <span className="text-blue-400 font-mono">Expected</span> (from cadence schedule),{' '}
+          <span className="text-amber-400 font-mono">Potential</span> (detected candidate), or{' '}
+          <span className="text-red-400 font-mono">Needs Review</span> (trial expiration or past due).
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 scrollbar-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-none font-mono">
         {['ALL', 'CONFIRMED', 'EXPECTED', 'POTENTIAL', 'NEEDS_REVIEW'].map(
           (filter) => (
             <button
               key={filter}
               onClick={() => setSelectedFilter(filter)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 transition-colors min-h-[38px] ${
+              className={`px-2.5 py-1 text-xs rounded-md shrink-0 transition-colors uppercase tracking-wider min-h-[32px] ${
                 selectedFilter === filter
-                  ? 'bg-primary text-white shadow-xs'
-                  : 'bg-surface text-muted border border-border hover:text-primary'
+                  ? 'bg-white text-black font-bold'
+                  : 'bg-[#0A0A0A] text-[#888888] border border-[#27272A] hover:text-white hover:border-[#3F3F46]'
               }`}
             >
               {filter.replace('_', ' ')}

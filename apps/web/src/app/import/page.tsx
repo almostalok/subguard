@@ -17,7 +17,7 @@ import {
   AlertTriangle,
   RotateCcw,
   Trash2,
-  Sparkles,
+  ScanLine,
   ArrowRight,
   Shield,
 } from 'lucide-react';
@@ -258,7 +258,7 @@ export default function ImportPage() {
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link href="/detection">
                   <Button variant="primary">
-                    <Sparkles className="w-4 h-4 mr-2" />
+                    <ScanLine className="w-4 h-4 mr-2" />
                     <span>Run Recurrence Detection Now</span>
                   </Button>
                 </Link>

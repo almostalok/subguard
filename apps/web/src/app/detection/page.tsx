@@ -11,7 +11,7 @@ import {
 import { Card, Button, Input, Select, Modal, Badge } from '@subguard/ui';
 import { formatCurrency } from '@subguard/utils';
 import {
-  Sparkles,
+  ScanLine,
   Check,
   X,
   Calendar,
@@ -128,13 +128,16 @@ export default function DetectionPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-status-warning" />
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-primary">
-              Recurrence Intelligence Review
+            <ScanLine className="w-5 h-5 text-white" />
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+              Pattern Detection Engine
             </h1>
+            <span className="px-2 py-0.5 rounded-sm bg-[#111111] border border-[#27272A] text-[10px] font-mono text-zinc-400">
+              DETERMINISTIC
+            </span>
           </div>
-          <p className="text-xs sm:text-sm text-muted mt-0.5">
-            Deterministic cadence clustering identifying repeated debit cycles in your statements.
+          <p className="text-xs sm:text-sm text-[#888888] mt-0.5">
+            Cadence clustering analyzing repeated debit cycles from transaction statements.
           </p>
         </div>
 
@@ -143,7 +146,7 @@ export default function DetectionPage() {
           isLoading={isScanning}
           onClick={handleRunScan}
         >
-          <Sparkles className="w-4 h-4 mr-2" />
+          <ScanLine className="w-3.5 h-3.5 mr-2" />
           <span>Scan All Transactions</span>
         </Button>
       </div>
@@ -173,10 +176,10 @@ export default function DetectionPage() {
       ) : (
         <div className="space-y-4">
           {candidates.map((cand) => (
-            <Card key={cand.id} padding="md" className="border-border shadow-xs">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-border">
+            <Card key={cand.id} padding="md" className="border-[#222222] shadow-xs">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#222222]">
                 <div className="flex items-start sm:items-center gap-3">
-                  <div className="w-11 h-11 rounded-lg bg-status-warning-bg text-status-warning border border-status-warning-border flex items-center justify-center font-bold text-sm shrink-0">
+                  <div className="w-10 h-10 rounded-md bg-[#161616] text-white border border-[#27272A] flex items-center justify-center font-mono font-bold text-xs shrink-0">
                     {cand.merchantDisplayName.slice(0, 2).toUpperCase()}
                   </div>
                   <div>

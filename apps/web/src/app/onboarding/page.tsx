@@ -70,28 +70,28 @@ export default function OnboardingPage() {
 
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4">
+    <div className="min-h-screen bg-black bg-grid-vercel flex flex-col justify-center items-center p-4 antialiased text-[#EDEDED]">
       <div className="w-full max-w-lg">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-white mb-3 shadow-sm">
-            <Shield className="w-6 h-6" />
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-md bg-white text-black mb-3 shadow-xs font-mono font-bold text-sm">
+            ▲
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-primary">
+          <h1 className="text-2xl font-bold tracking-tight text-white font-sans">
             Welcome to SubGuard, {user?.name || 'Friend'}
           </h1>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-xs text-[#888888] font-mono">
             Configure your financial environment in two quick steps.
           </p>
         </div>
 
         {step === 1 && (
-          <Card padding="lg" className="shadow-md">
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border">
-              <span className="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
+          <Card padding="lg" className="border-[#222222] shadow-2xl bg-[#0A0A0A]">
+            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#222222]">
+              <span className="w-5 h-5 rounded-md bg-white text-black text-xs font-mono font-bold flex items-center justify-center">
                 1
               </span>
-              <h2 className="text-base font-semibold text-primary">
+              <h2 className="text-sm font-semibold text-white tracking-tight">
                 Currency & Locale Preferences
               </h2>
             </div>
