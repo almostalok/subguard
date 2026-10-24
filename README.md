@@ -120,3 +120,6 @@ To launch PostgreSQL, Redis, the API service, and the Web application via Docker
 cd infra
 docker compose up -d --build
 ```
+
+
+@almostalok
